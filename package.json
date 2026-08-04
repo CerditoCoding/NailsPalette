@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && (prisma migrate deploy || (prisma migrate resolve --applied 20260804204944_init && prisma migrate deploy)) && next build",
+    "build": "prisma generate && prisma db execute --file prisma/scripts/reset-schema.sql && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
