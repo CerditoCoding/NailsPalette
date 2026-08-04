@@ -46,6 +46,27 @@ function lineKey(productId: string, size: string) {
   return `${productId}::${size}`;
 }
 
+function isValidCartLine(value: unknown): value is CartLine {
+  if (typeof value !== "object" || value === null) return false;
+  const line = value as Record<string, unknown>;
+  return (
+    typeof line.productId === "string" &&
+    typeof line.slug === "string" &&
+    typeof line.name === "string" &&
+    typeof line.coverImage === "string" &&
+    typeof line.price === "number" &&
+    typeof line.size === "string" &&
+    typeof line.quantity === "number"
+  );
+}
+
+/** Descarta carritos guardados por versiones anteriores del sitio cuyo
+ * formato ya no coincide con el CartLine actual, para no romper el render. */
+function sanitizeStoredLines(raw: unknown): CartLine[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(isValidCartLine);
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -54,10 +75,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
+        const sanitized = sanitizeStoredLines(JSON.parse(stored));
         // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate cart from localStorage once on mount
-        setLines(JSON.parse(stored));
+        setLines(sanitized);
       } catch {
-        // ignore malformed cart data
+        // ignore malformed cart data (invalid JSON from a previous version)
       }
     }
   }, []);
