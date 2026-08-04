@@ -1,15 +1,19 @@
-import { collections, shapes, sizes } from "@/data/products";
-
 export type Filters = {
-  collection: (typeof collections)[number];
+  collection: string;
   shapes: string[];
   sizes: string[];
 };
 
 export function Sidebar({
+  collections,
+  shapes,
+  sizes,
   filters,
   onChange,
 }: {
+  collections: string[];
+  shapes: string[];
+  sizes: string[];
   filters: Filters;
   onChange: (filters: Filters) => void;
 }) {
@@ -34,7 +38,7 @@ export function Sidebar({
           Colecciones
         </h3>
         <ul className="space-y-2 text-sm text-zinc-600">
-          {collections.map((collection) => (
+          {["Todas", ...collections].map((collection) => (
             <li key={collection}>
               <button
                 type="button"

@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { products } from "@/data/products";
-import { useCart } from "@/context/CartContext";
+import type { CatalogProduct } from "@/types/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { Sidebar, type Filters } from "@/components/Sidebar";
 
@@ -14,8 +13,17 @@ const SORT_LABELS: Record<SortOption, string> = {
   "precio-desc": "Precio: mayor a menor",
 };
 
-export function Catalog() {
-  const { addItem } = useCart();
+export function Catalog({
+  products,
+  collections,
+  shapes,
+  sizes,
+}: {
+  products: CatalogProduct[];
+  collections: string[];
+  shapes: string[];
+  sizes: string[];
+}) {
   const [filters, setFilters] = useState<Filters>({
     collection: "Todas",
     shapes: [],
@@ -30,7 +38,8 @@ export function Catalog() {
       const matchesShape =
         filters.shapes.length === 0 || filters.shapes.includes(product.shape);
       const matchesSize =
-        filters.sizes.length === 0 || filters.sizes.includes(product.size);
+        filters.sizes.length === 0 ||
+        filters.sizes.some((size) => product.sizes.includes(size));
       return matchesCollection && matchesShape && matchesSize;
     });
 
@@ -41,7 +50,7 @@ export function Catalog() {
     }
 
     return list;
-  }, [filters, sort]);
+  }, [products, filters, sort]);
 
   return (
     <section id="catalogo" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -66,7 +75,13 @@ export function Catalog() {
       </div>
 
       <div className="flex flex-col gap-8 sm:flex-row">
-        <Sidebar filters={filters} onChange={setFilters} />
+        <Sidebar
+          collections={collections}
+          shapes={shapes}
+          sizes={sizes}
+          filters={filters}
+          onChange={setFilters}
+        />
 
         <div className="flex-1">
           {filtered.length === 0 ? (
@@ -76,7 +91,7 @@ export function Catalog() {
           ) : (
             <div className="grid grid-cols-1 gap-6 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((product) => (
-                <ProductCard key={product.id} product={product} onAdd={addItem} />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}

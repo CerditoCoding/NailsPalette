@@ -4,35 +4,50 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { products, type Product } from "@/data/products";
 
-export type CartItem = {
+export type CartLine = {
   productId: string;
+  slug: string;
+  name: string;
+  coverImage: string;
+  price: number;
+  size: string;
   quantity: number;
 };
 
+type AddableProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  coverImage: string;
+  price: number;
+};
+
 type CartContextValue = {
-  items: CartItem[];
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (productId: string) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addItem: (product: AddableProduct, size: string, quantity?: number) => void;
+  removeItem: (productId: string, size: string) => void;
+  updateQuantity: (productId: string, size: string, quantity: number) => void;
+  clear: () => void;
   totalCount: number;
   totalPrice: number;
-  lines: { product: Product; quantity: number }[];
+  lines: CartLine[];
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "nailspalette-cart";
 
+function lineKey(productId: string, size: string) {
+  return `${productId}::${size}`;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -40,7 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (stored) {
       try {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate cart from localStorage once on mount
-        setItems(JSON.parse(stored));
+        setLines(JSON.parse(stored));
       } catch {
         // ignore malformed cart data
       }
@@ -48,76 +63,73 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+  }, [lines]);
 
-  const addItem = (productId: string) => {
-    setItems((prev) => {
-      const existing = prev.find((item) => item.productId === productId);
+  const addItem = (product: AddableProduct, size: string, quantity = 1) => {
+    setLines((prev) => {
+      const key = lineKey(product.id, size);
+      const existing = prev.find((line) => lineKey(line.productId, line.size) === key);
       if (existing) {
-        return prev.map((item) =>
-          item.productId === productId
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+        return prev.map((line) =>
+          lineKey(line.productId, line.size) === key
+            ? { ...line, quantity: line.quantity + quantity }
+            : line
         );
       }
-      return [...prev, { productId, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          productId: product.id,
+          slug: product.slug,
+          name: product.name,
+          coverImage: product.coverImage,
+          price: product.price,
+          size,
+          quantity,
+        },
+      ];
     });
     setIsOpen(true);
   };
 
-  const removeItem = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId));
+  const removeItem = (productId: string, size: string) => {
+    const key = lineKey(productId, size);
+    setLines((prev) => prev.filter((line) => lineKey(line.productId, line.size) !== key));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, size: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      removeItem(productId, size);
       return;
     }
-    setItems((prev) =>
-      prev.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
+    const key = lineKey(productId, size);
+    setLines((prev) =>
+      prev.map((line) =>
+        lineKey(line.productId, line.size) === key ? { ...line, quantity } : line
       )
     );
   };
 
-  const lines = useMemo(
-    () =>
-      items
-        .map((item) => {
-          const product = products.find((p) => p.id === item.productId);
-          if (!product) return null;
-          return { product, quantity: item.quantity };
-        })
-        .filter((line): line is { product: Product; quantity: number } => line !== null),
-    [items]
-  );
+  const clear = () => setLines([]);
 
   const totalCount = lines.reduce((sum, line) => sum + line.quantity, 0);
-  const totalPrice = lines.reduce(
-    (sum, line) => sum + line.quantity * line.product.price,
-    0
-  );
+  const totalPrice = lines.reduce((sum, line) => sum + line.quantity * line.price, 0);
 
-  return (
-    <CartContext.Provider
-      value={{
-        items,
-        isOpen,
-        openCart: () => setIsOpen(true),
-        closeCart: () => setIsOpen(false),
-        addItem,
-        removeItem,
-        updateQuantity,
-        totalCount,
-        totalPrice,
-        lines,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+  const value: CartContextValue = {
+    isOpen,
+    openCart: () => setIsOpen(true),
+    closeCart: () => setIsOpen(false),
+    addItem,
+    removeItem,
+    updateQuantity,
+    clear,
+    totalCount,
+    totalPrice,
+    lines,
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
