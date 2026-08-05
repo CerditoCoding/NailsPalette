@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { upload } from "@vercel/blob/client";
 
 type Tag = { id: string; name: string };
 
@@ -20,14 +19,14 @@ type InitialProduct = {
 };
 
 async function uploadFile(file: File): Promise<string> {
-  // Sube directo del navegador al storage (Vercel Blob), sin pasar el
-  // archivo por nuestra función serverless — evita el límite de tamaño
-  // de body de las funciones y no depende del filesystem del servidor.
-  const blob = await upload(file.name, file, {
-    access: "public",
-    handleUploadUrl: "/api/admin/upload",
-  });
-  return blob.url;
+  // Sube a través de nuestra propia función (mismo origen, sin CORS)
+  // que en el servidor la guarda en Vercel Blob.
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "No se pudo subir la imagen.");
+  return data.url as string;
 }
 
 function isEmojiPlaceholder(url: string) {
