@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/admin/LogoutButton";
-
-const NAV_LINKS = [
-  { label: "Etiquetas", href: "/admin/etiquetas" },
-  { label: "Publicaciones", href: "/admin/publicaciones" },
-  { label: "Pedidos", href: "/admin/pedidos" },
-  { label: "Envíos", href: "/admin/envios" },
-];
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default function AdminDashboardLayout({
   children,
@@ -30,17 +24,7 @@ export default function AdminDashboardLayout({
           </div>
           <LogoutButton />
         </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2 sm:px-6">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-zinc-600 hover:bg-pink-50 hover:text-pink-600"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminNav />
       </header>
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
     </div>
