@@ -8,5 +8,6 @@ export type CatalogProduct = {
   images: string[];
   collection: string;
   shape: string;
+  designLevel: string;
   sizes: string[];
 };

@@ -31,23 +31,32 @@ model Size {
   products  Product[] @relation("ProductSizes")
 }
 
+model DesignLevel {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
 model Product {
-  id           String         @id @default(cuid())
-  slug         String         @unique
-  name         String
-  description  String
-  price        Int
-  coverImage   String
-  active       Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  collectionId String
-  collection   Collection     @relation(fields: [collectionId], references: [id])
-  shapeId      String
-  shape        Shape          @relation(fields: [shapeId], references: [id])
-  sizes        Size[]         @relation("ProductSizes")
-  images       ProductImage[]
-  orderItems   OrderItem[]
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  name          String
+  description   String
+  price         Int
+  coverImage    String
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  collectionId  String
+  collection    Collection     @relation(fields: [collectionId], references: [id])
+  shapeId       String
+  shape         Shape          @relation(fields: [shapeId], references: [id])
+  designLevelId String
+  designLevel   DesignLevel    @relation(fields: [designLevelId], references: [id])
+  sizes         Size[]         @relation("ProductSizes")
+  images        ProductImage[]
+  orderItems    OrderItem[]
 }
 
 model ProductImage {

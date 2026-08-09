@@ -4,6 +4,7 @@ export type ProductPayload = {
   price: number;
   collectionId: string;
   shapeId: string;
+  designLevelId: string;
   sizeIds: string[];
   coverImage: string;
   images: string[];
@@ -33,6 +34,9 @@ export function validateProductPayload(
   if (typeof b.shapeId !== "string" || !b.shapeId) {
     return { error: "Elegí una forma." };
   }
+  if (typeof b.designLevelId !== "string" || !b.designLevelId) {
+    return { error: "Elegí un nivel de diseño." };
+  }
   if (!Array.isArray(b.sizeIds) || b.sizeIds.length === 0) {
     return { error: "Elegí al menos un talle disponible." };
   }
@@ -53,6 +57,7 @@ export function validateProductPayload(
       price: Math.round(price),
       collectionId: b.collectionId,
       shapeId: b.shapeId,
+      designLevelId: b.designLevelId,
       sizeIds: b.sizeIds as string[],
       coverImage: b.coverImage,
       images,

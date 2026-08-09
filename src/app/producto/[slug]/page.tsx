@@ -29,6 +29,7 @@ export default async function ProductDetailPage({
     include: {
       collection: true,
       shape: true,
+      designLevel: true,
       sizes: { orderBy: { name: "asc" } },
       images: { orderBy: { position: "asc" } },
     },
@@ -56,7 +57,7 @@ export default async function ProductDetailPage({
 
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-pink-500">
-                {product.collection.name} · {product.shape.name}
+                {product.collection.name} · {product.shape.name} · {product.designLevel.name}
               </p>
               <h1 className="mb-3 text-2xl font-bold text-zinc-900">{product.name}</h1>
               <p className="mb-6 text-xl font-bold text-zinc-900">

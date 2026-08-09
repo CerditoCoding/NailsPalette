@@ -11,6 +11,7 @@ const prisma = new PrismaClient({ adapter });
 const collections = ["Clásicos", "Glitter", "Francesa", "Temporada"];
 const shapes = ["Almendra", "Coffin", "Cuadrada", "Stiletto"];
 const sizes = ["S", "M", "L"];
+const designs = ["Lisas", "Diseño sencillo", "Full diseño"];
 
 const products = [
   {
@@ -19,6 +20,7 @@ const products = [
     price: 6800,
     collection: "Clásicos",
     shape: "Almendra",
+    design: "Lisas",
     sizes: ["S", "M", "L"],
     coverEmoji: "💅",
     description:
@@ -30,6 +32,7 @@ const products = [
     price: 7200,
     collection: "Francesa",
     shape: "Coffin",
+    design: "Diseño sencillo",
     sizes: ["M", "L"],
     coverEmoji: "🤍",
     description: "La francesa de siempre, con punta blanca prolija sobre base rosada.",
@@ -40,6 +43,7 @@ const products = [
     price: 8500,
     collection: "Glitter",
     shape: "Stiletto",
+    design: "Full diseño",
     sizes: ["M", "L"],
     coverEmoji: "✨",
     description: "Brillo dorado intenso para ocasiones especiales.",
@@ -50,6 +54,7 @@ const products = [
     price: 7200,
     collection: "Clásicos",
     shape: "Cuadrada",
+    design: "Lisas",
     sizes: ["S", "M", "L"],
     coverEmoji: "❤️",
     description: "Un rojo intenso y clásico que nunca falla.",
@@ -60,6 +65,7 @@ const products = [
     price: 7500,
     collection: "Francesa",
     shape: "Almendra",
+    design: "Diseño sencillo",
     sizes: ["S", "M"],
     coverEmoji: "🌸",
     description: "Variante de la francesa clásica con punta rosada suave.",
@@ -70,6 +76,7 @@ const products = [
     price: 8500,
     collection: "Glitter",
     shape: "Coffin",
+    design: "Full diseño",
     sizes: ["M", "L"],
     coverEmoji: "✨",
     description: "Brillo plateado para un look elegante y luminoso.",
@@ -80,6 +87,7 @@ const products = [
     price: 7900,
     collection: "Temporada",
     shape: "Almendra",
+    design: "Full diseño",
     sizes: ["S", "M", "L"],
     coverEmoji: "🌷",
     description: "Diseño floral delicado inspirado en la primavera.",
@@ -90,6 +98,7 @@ const products = [
     price: 7900,
     collection: "Temporada",
     shape: "Cuadrada",
+    design: "Diseño sencillo",
     sizes: ["S", "M"],
     coverEmoji: "🌺",
     description: "Colores vibrantes con inspiración tropical para el verano.",
@@ -100,6 +109,7 @@ const products = [
     price: 6800,
     collection: "Clásicos",
     shape: "Coffin",
+    design: "Lisas",
     sizes: ["M", "L"],
     coverEmoji: "🤎",
     description: "Nude mate elegante, perfecto para cualquier ocasión.",
@@ -137,6 +147,16 @@ async function main() {
     sizeRecords.set(name, record.id);
   }
 
+  const designRecords = new Map<string, string>();
+  for (const name of designs) {
+    const record = await prisma.designLevel.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    designRecords.set(name, record.id);
+  }
+
   for (const product of products) {
     await prisma.product.upsert({
       where: { slug: product.slug },
@@ -149,6 +169,7 @@ async function main() {
         coverImage: `emoji:${product.coverEmoji}`,
         collectionId: collectionRecords.get(product.collection)!,
         shapeId: shapeRecords.get(product.shape)!,
+        designLevelId: designRecords.get(product.design)!,
         sizes: {
           connect: product.sizes.map((s) => ({ id: sizeRecords.get(s)! })),
         },

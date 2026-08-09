@@ -13,7 +13,7 @@ const currencyFormatter = new Intl.NumberFormat("es-AR", {
 
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
-    include: { collection: true, shape: true, sizes: true },
+    include: { collection: true, shape: true, designLevel: true, sizes: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -38,6 +38,7 @@ export default async function AdminProductsPage() {
             <tr>
               <th className="px-4 py-3">Diseño</th>
               <th className="px-4 py-3">Colección / Forma</th>
+              <th className="px-4 py-3">Nivel de diseño</th>
               <th className="px-4 py-3">Talles</th>
               <th className="px-4 py-3">Precio</th>
               <th className="px-4 py-3 text-right">Acciones</th>
@@ -65,6 +66,7 @@ export default async function AdminProductsPage() {
                 <td className="px-4 py-3 text-zinc-600">
                   {product.collection.name} · {product.shape.name}
                 </td>
+                <td className="px-4 py-3 text-zinc-600">{product.designLevel.name}</td>
                 <td className="px-4 py-3 text-zinc-600">
                   {product.sizes.map((s) => s.name).join(", ")}
                 </td>

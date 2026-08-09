@@ -18,7 +18,7 @@ export default async function Home() {
   const [products, collections, shapes] = await Promise.all([
     prisma.product.findMany({
       where: { active: true },
-      include: { collection: true, shape: true, sizes: true, images: true },
+      include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
       orderBy: { createdAt: "desc" },
     }),
     prisma.collection.findMany({ orderBy: { name: "asc" } }),
@@ -35,6 +35,7 @@ export default async function Home() {
     images: product.images.map((i) => i.url),
     collection: product.collection.name,
     shape: product.shape.name,
+    designLevel: product.designLevel.name,
     sizes: product.sizes.map((s) => s.name),
   }));
 

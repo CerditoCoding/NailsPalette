@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export const TAG_TYPES = ["collections", "shapes", "sizes"] as const;
+export const TAG_TYPES = ["collections", "shapes", "sizes", "designs"] as const;
 export type TagType = (typeof TAG_TYPES)[number];
 
 export function isTagType(value: string): value is TagType {
@@ -15,6 +15,8 @@ export async function findAllTags(type: TagType) {
       return prisma.shape.findMany({ orderBy: { name: "asc" } });
     case "sizes":
       return prisma.size.findMany({ orderBy: { name: "asc" } });
+    case "designs":
+      return prisma.designLevel.findMany({ orderBy: { name: "asc" } });
   }
 }
 
@@ -26,6 +28,8 @@ export async function createTag(type: TagType, name: string) {
       return prisma.shape.create({ data: { name } });
     case "sizes":
       return prisma.size.create({ data: { name } });
+    case "designs":
+      return prisma.designLevel.create({ data: { name } });
   }
 }
 
@@ -37,6 +41,8 @@ export async function deleteTag(type: TagType, id: string) {
       return prisma.shape.delete({ where: { id } });
     case "sizes":
       return prisma.size.delete({ where: { id } });
+    case "designs":
+      return prisma.designLevel.delete({ where: { id } });
   }
 }
 
@@ -47,6 +53,9 @@ export async function countProductsUsingTag(type: TagType, id: string) {
   if (type === "shapes") {
     return prisma.product.count({ where: { shapeId: id } });
   }
+  if (type === "designs") {
+    return prisma.product.count({ where: { designLevelId: id } });
+  }
   return prisma.product.count({ where: { sizes: { some: { id } } } });
 }
 
@@ -54,4 +63,5 @@ export const TAG_TYPE_LABELS: Record<TagType, string> = {
   collections: "colección",
   shapes: "forma",
   sizes: "talle",
+  designs: "diseño",
 };

@@ -13,6 +13,7 @@ type InitialProduct = {
   price: number;
   collectionId: string;
   shapeId: string;
+  designLevelId: string;
   sizeIds: string[];
   coverImage: string;
   images: string[];
@@ -56,7 +57,7 @@ export function ProductForm({
   tags,
   initialProduct,
 }: {
-  tags: { collections: Tag[]; shapes: Tag[]; sizes: Tag[] };
+  tags: { collections: Tag[]; shapes: Tag[]; sizes: Tag[]; designs: Tag[] };
   initialProduct?: InitialProduct;
 }) {
   const router = useRouter();
@@ -69,6 +70,9 @@ export function ProductForm({
     initialProduct?.collectionId ?? tags.collections[0]?.id ?? ""
   );
   const [shapeId, setShapeId] = useState(initialProduct?.shapeId ?? tags.shapes[0]?.id ?? "");
+  const [designLevelId, setDesignLevelId] = useState(
+    initialProduct?.designLevelId ?? tags.designs[0]?.id ?? ""
+  );
   const [sizeIds, setSizeIds] = useState<string[]>(initialProduct?.sizeIds ?? []);
   const [coverImage, setCoverImage] = useState(initialProduct?.coverImage ?? "");
   const [images, setImages] = useState<string[]>(initialProduct?.images ?? []);
@@ -141,6 +145,7 @@ export function ProductForm({
       price: Number(price),
       collectionId,
       shapeId,
+      designLevelId,
       sizeIds,
       coverImage,
       images,
@@ -196,7 +201,7 @@ export function ProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Precio ($)
@@ -242,6 +247,24 @@ export function ProductForm({
             {tags.shapes.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Nivel de diseño
+          </label>
+          <select
+            required
+            value={designLevelId}
+            onChange={(e) => setDesignLevelId(e.target.value)}
+            className="w-full rounded-lg border border-pink-200 px-3 py-2 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
+          >
+            {tags.designs.length === 0 && <option value="">Creá un nivel de diseño primero</option>}
+            {tags.designs.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
               </option>
             ))}
           </select>

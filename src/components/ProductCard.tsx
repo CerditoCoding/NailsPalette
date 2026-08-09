@@ -38,7 +38,7 @@ export function ProductCard({ product }: { product: CatalogProduct }) {
       )}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <p className="text-xs font-medium uppercase tracking-wide text-pink-500">
-          {product.collection} · {product.shape}
+          {product.collection} · {product.shape} · {product.designLevel}
         </p>
         <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
           {product.name}

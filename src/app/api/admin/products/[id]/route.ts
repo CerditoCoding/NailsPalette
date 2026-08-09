@@ -9,7 +9,7 @@ export async function GET(
   const { id } = await params;
   const item = await prisma.product.findUnique({
     where: { id },
-    include: { collection: true, shape: true, sizes: true, images: true },
+    include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
   });
   if (!item) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
   return NextResponse.json({ item });
@@ -43,10 +43,11 @@ export async function PUT(
       coverImage: data.coverImage,
       collectionId: data.collectionId,
       shapeId: data.shapeId,
+      designLevelId: data.designLevelId,
       sizes: { set: data.sizeIds.map((sizeId) => ({ id: sizeId })) },
       images: { create: data.images.map((url, position) => ({ url, position })) },
     },
-    include: { collection: true, shape: true, sizes: true, images: true },
+    include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
   });
 
   return NextResponse.json({ item });

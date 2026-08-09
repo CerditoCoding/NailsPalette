@@ -12,7 +12,7 @@ export default async function EditProductPage({
 }) {
   const { id } = await params;
 
-  const [product, collections, shapes, sizes] = await Promise.all([
+  const [product, collections, shapes, sizes, designs] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
       include: { sizes: true, images: { orderBy: { position: "asc" } } },
@@ -20,6 +20,7 @@ export default async function EditProductPage({
     prisma.collection.findMany({ orderBy: { name: "asc" } }),
     prisma.shape.findMany({ orderBy: { name: "asc" } }),
     prisma.size.findMany({ orderBy: { name: "asc" } }),
+    prisma.designLevel.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   if (!product) notFound();
@@ -31,7 +32,7 @@ export default async function EditProductPage({
       </Link>
       <h1 className="mb-6 text-xl font-bold text-zinc-900">Editar publicación</h1>
       <ProductForm
-        tags={{ collections, shapes, sizes }}
+        tags={{ collections, shapes, sizes, designs }}
         initialProduct={{
           id: product.id,
           name: product.name,
@@ -39,6 +40,7 @@ export default async function EditProductPage({
           price: product.price,
           collectionId: product.collectionId,
           shapeId: product.shapeId,
+          designLevelId: product.designLevelId,
           sizeIds: product.sizes.map((s) => s.id),
           coverImage: product.coverImage,
           images: product.images.map((i) => i.url),

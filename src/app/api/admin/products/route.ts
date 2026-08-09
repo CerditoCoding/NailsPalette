@@ -5,7 +5,7 @@ import { validateProductPayload } from "@/lib/productPayload";
 
 export async function GET() {
   const items = await prisma.product.findMany({
-    include: { collection: true, shape: true, sizes: true, images: true },
+    include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ items });
@@ -30,10 +30,11 @@ export async function POST(request: Request) {
       coverImage: data.coverImage,
       collectionId: data.collectionId,
       shapeId: data.shapeId,
+      designLevelId: data.designLevelId,
       sizes: { connect: data.sizeIds.map((id) => ({ id })) },
       images: { create: data.images.map((url, position) => ({ url, position })) },
     },
-    include: { collection: true, shape: true, sizes: true, images: true },
+    include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
   });
 
   return NextResponse.json({ item: product }, { status: 201 });
