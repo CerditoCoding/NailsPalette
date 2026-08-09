@@ -71,7 +71,12 @@ export default async function AdminProductsPage() {
                   {product.sizes.map((s) => s.name).join(", ")}
                 </td>
                 <td className="px-4 py-3 text-zinc-900">
-                  {currencyFormatter.format(product.price)}
+                  {currencyFormatter.format(product.price + product.designLevel.priceModifier)}
+                  {product.designLevel.priceModifier > 0 && (
+                    <p className="text-xs font-normal text-zinc-400">
+                      {currencyFormatter.format(product.price)} + {currencyFormatter.format(product.designLevel.priceModifier)}
+                    </p>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-3">

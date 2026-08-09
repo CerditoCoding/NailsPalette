@@ -32,10 +32,11 @@ model Size {
 }
 
 model DesignLevel {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  products  Product[]
+  id            String    @id @default(cuid())
+  name          String    @unique
+  priceModifier Int       @default(0)
+  createdAt     DateTime  @default(now())
+  products      Product[]
 }
 
 model Product {

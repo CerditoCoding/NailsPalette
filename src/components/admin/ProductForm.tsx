@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { formatCurrency } from "@/lib/currency";
 
 type Tag = { id: string; name: string };
+type DesignTag = Tag & { priceModifier: number };
 
 type InitialProduct = {
   id: string;
@@ -57,7 +59,7 @@ export function ProductForm({
   tags,
   initialProduct,
 }: {
-  tags: { collections: Tag[]; shapes: Tag[]; sizes: Tag[]; designs: Tag[] };
+  tags: { collections: Tag[]; shapes: Tag[]; sizes: Tag[]; designs: DesignTag[] };
   initialProduct?: InitialProduct;
 }) {
   const router = useRouter();
@@ -265,11 +267,26 @@ export function ProductForm({
             {tags.designs.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
+                {d.priceModifier > 0 ? ` (+${formatCurrency(d.priceModifier)})` : ""}
               </option>
             ))}
           </select>
         </div>
       </div>
+
+      {(() => {
+        const selectedDesign = tags.designs.find((d) => d.id === designLevelId);
+        const basePrice = Number(price) || 0;
+        if (!selectedDesign || selectedDesign.priceModifier <= 0 || basePrice <= 0) return null;
+        return (
+          <p className="-mt-2 text-xs text-zinc-500">
+            Precio final con {selectedDesign.name.toLowerCase()}:{" "}
+            <span className="font-semibold text-pink-500">
+              {formatCurrency(basePrice + selectedDesign.priceModifier)}
+            </span>
+          </p>
+        );
+      })()}
 
       <div>
         <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">

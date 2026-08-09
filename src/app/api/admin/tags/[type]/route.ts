@@ -24,8 +24,9 @@ export async function POST(
   }
 
   let name: unknown;
+  let priceModifier: unknown;
   try {
-    ({ name } = await request.json());
+    ({ name, priceModifier } = await request.json());
   } catch {
     return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
@@ -34,8 +35,17 @@ export async function POST(
     return NextResponse.json({ error: "El nombre es obligatorio." }, { status: 400 });
   }
 
+  let priceModifierValue: number | undefined;
+  if (type === "designs" && priceModifier !== undefined) {
+    const parsed = Number(priceModifier);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return NextResponse.json({ error: "El recargo debe ser un número mayor o igual a 0." }, { status: 400 });
+    }
+    priceModifierValue = Math.round(parsed);
+  }
+
   try {
-    const item = await createTag(type, name.trim());
+    const item = await createTag(type, name.trim(), priceModifierValue);
     return NextResponse.json({ item }, { status: 201 });
   } catch (error: unknown) {
     if (

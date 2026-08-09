@@ -20,7 +20,7 @@ export async function findAllTags(type: TagType) {
   }
 }
 
-export async function createTag(type: TagType, name: string) {
+export async function createTag(type: TagType, name: string, priceModifier?: number) {
   switch (type) {
     case "collections":
       return prisma.collection.create({ data: { name } });
@@ -29,7 +29,7 @@ export async function createTag(type: TagType, name: string) {
     case "sizes":
       return prisma.size.create({ data: { name } });
     case "designs":
-      return prisma.designLevel.create({ data: { name } });
+      return prisma.designLevel.create({ data: { name, priceModifier: priceModifier ?? 0 } });
   }
 }
 

@@ -38,6 +38,7 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const gallery = [product.coverImage, ...product.images.map((i) => i.url)];
+  const finalPrice = product.price + product.designLevel.priceModifier;
 
   return (
     <div className="flex min-h-full flex-col bg-white">
@@ -61,7 +62,7 @@ export default async function ProductDetailPage({
               </p>
               <h1 className="mb-3 text-2xl font-bold text-zinc-900">{product.name}</h1>
               <p className="mb-6 text-xl font-bold text-zinc-900">
-                {currencyFormatter.format(product.price)}
+                {currencyFormatter.format(finalPrice)}
               </p>
               <p className="mb-8 whitespace-pre-line text-sm leading-relaxed text-zinc-600">
                 {product.description}
@@ -73,7 +74,7 @@ export default async function ProductDetailPage({
                   slug: product.slug,
                   name: product.name,
                   coverImage: product.coverImage,
-                  price: product.price,
+                  price: finalPrice,
                 }}
                 sizes={product.sizes.map((s) => s.name)}
               />

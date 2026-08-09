@@ -32,6 +32,7 @@ export default async function AdminTagsPage() {
           label="Nivel de diseño"
           placeholder="Nuevo nivel de diseño"
           initialItems={designs}
+          withPrice
         />
       </div>
     </div>

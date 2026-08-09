@@ -30,7 +30,7 @@ export default async function Home() {
     slug: product.slug,
     name: product.name,
     description: product.description,
-    price: product.price,
+    price: product.price + product.designLevel.priceModifier,
     coverImage: product.coverImage,
     images: product.images.map((i) => i.url),
     collection: product.collection.name,
