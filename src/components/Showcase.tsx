@@ -30,38 +30,37 @@ export function Showcase({ photos }: { photos: string[] }) {
 
   return (
     <section className="bg-pink-50/40 py-10">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-center text-xl font-bold text-zinc-900">Diseños para vos</h2>
 
         <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[21/9]">
           {photos.map((url, i) => {
             const delta = circularDelta(i, index, photos.length);
-            const isCenter = delta === 0;
-            const isNeighbor = Math.abs(delta) === 1;
-            const visible = isCenter || isNeighbor;
+            const distance = Math.abs(delta);
+            const isCenter = distance === 0;
+
+            const scale = Math.max(1 - distance * 0.14, 0.55);
+            const opacity = Math.max(1 - distance * 0.15, 0.35);
+            const blurPx = distance === 0 ? 0 : Math.min(distance * 1.5, 4.5);
+            const brightness = Math.max(1 - distance * 0.13, 0.45);
 
             return (
               <div
                 key={url + i}
                 aria-hidden={!isCenter}
-                className={`absolute left-1/2 top-1/2 h-full w-[72%] rounded-2xl transition-all duration-700 ease-in-out sm:w-[55%] ${
-                  isCenter
-                    ? "z-20 opacity-100 blur-none brightness-100"
-                    : isNeighbor
-                      ? "z-10 opacity-45 blur-[3px] brightness-60"
-                      : "z-0 opacity-0"
-                }`}
+                className="absolute left-1/2 top-1/2 h-full w-[42%] rounded-2xl transition-all duration-700 ease-in-out sm:w-[30%]"
                 style={{
-                  transform: `translate(calc(-50% + ${delta * 68}%), -50%) scale(${
-                    isCenter ? 1 : visible ? 0.87 : 0.8
-                  })`,
+                  transform: `translate(calc(-50% + ${delta * 24}%), -50%) scale(${scale})`,
+                  opacity,
+                  filter: `blur(${blurPx}px) brightness(${brightness})`,
+                  zIndex: 100 - distance,
                 }}
               >
                 <Image
                   src={url}
                   alt=""
                   fill
-                  sizes="(max-width: 640px) 72vw, 55vw"
+                  sizes="(max-width: 640px) 42vw, 30vw"
                   className="rounded-2xl object-cover shadow-lg"
                   priority={isCenter}
                 />
