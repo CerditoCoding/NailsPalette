@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/currency";
+import { uploadImage } from "@/lib/uploadImage";
 
 type Tag = { id: string; name: string };
 type DesignTag = Tag & { priceModifier: number };
@@ -20,17 +21,6 @@ type InitialProduct = {
   coverImage: string;
   images: string[];
 };
-
-async function uploadFile(file: File): Promise<string> {
-  // Sube a través de nuestra propia función (mismo origen, sin CORS)
-  // que en el servidor la guarda en Vercel Blob.
-  const formData = new FormData();
-  formData.append("file", file);
-  const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "No se pudo subir la imagen.");
-  return data.url as string;
-}
 
 function isEmojiPlaceholder(url: string) {
   return url.startsWith("emoji:");
@@ -94,7 +84,7 @@ export function ProductForm({
     setUploadingCover(true);
     setError(null);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadImage(file);
       setCoverImage(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo subir la portada.");
@@ -113,7 +103,7 @@ export function ProductForm({
     setUploadingRefs(true);
     setError(null);
     try {
-      const urls = await Promise.all(filesToUpload.map(uploadFile));
+      const urls = await Promise.all(filesToUpload.map(uploadImage));
       setImages((prev) => [...prev, ...urls]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron subir las imágenes.");
