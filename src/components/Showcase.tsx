@@ -33,7 +33,7 @@ export function Showcase({ photos }: { photos: string[] }) {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-center text-xl font-bold text-zinc-900">Diseños para vos</h2>
 
-        <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[21/9]">
+        <div className="relative aspect-[5/4] overflow-hidden sm:aspect-[2/1]">
           {photos.map((url, i) => {
             const delta = circularDelta(i, index, photos.length);
             const distance = Math.abs(delta);
@@ -48,9 +48,9 @@ export function Showcase({ photos }: { photos: string[] }) {
               <div
                 key={url + i}
                 aria-hidden={!isCenter}
-                className="absolute left-1/2 top-1/2 h-full w-[42%] rounded-2xl transition-all duration-700 ease-in-out sm:w-[30%]"
+                className="absolute left-1/2 top-1/2 h-full w-[64%] rounded-2xl transition-all duration-700 ease-in-out sm:w-[46%]"
                 style={{
-                  transform: `translate(calc(-50% + ${delta * 24}%), -50%) scale(${scale})`,
+                  transform: `translate(calc(-50% + ${delta * 20}%), -50%) scale(${scale})`,
                   opacity,
                   filter: `blur(${blurPx}px) brightness(${brightness})`,
                   zIndex: 100 - distance,
@@ -60,7 +60,7 @@ export function Showcase({ photos }: { photos: string[] }) {
                   src={url}
                   alt=""
                   fill
-                  sizes="(max-width: 640px) 42vw, 30vw"
+                  sizes="(max-width: 640px) 64vw, 46vw"
                   className="rounded-2xl object-cover shadow-lg"
                   priority={isCenter}
                 />
