@@ -10,7 +10,8 @@ export async function POST(request: Request) {
   }
   const { data } = result;
 
-  const total = data.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const itemsTotal = data.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const total = itemsTotal + data.shippingEstimate;
 
   const order = await prisma.order.create({
     data: {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
       city: data.city,
       province: data.province,
       postalCode: data.postalCode,
+      shippingEstimate: data.shippingEstimate,
       total,
       items: {
         create: data.items.map((item) => ({

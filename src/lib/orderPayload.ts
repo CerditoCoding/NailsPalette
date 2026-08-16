@@ -14,6 +14,7 @@ export type OrderPayload = {
   city: string;
   province: string;
   postalCode: string;
+  shippingEstimate: number;
   items: OrderItemInput[];
 };
 
@@ -46,6 +47,15 @@ export function validateOrderPayload(
   const email = (b.email as string).trim();
   if (!EMAIL_REGEX.test(email)) {
     return { error: "El correo electrónico no es válido." };
+  }
+
+  let shippingEstimate = 0;
+  if (b.shippingEstimate !== undefined) {
+    const parsed = Number(b.shippingEstimate);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return { error: "El estimado de envío no es válido." };
+    }
+    shippingEstimate = Math.round(parsed);
   }
 
   if (!Array.isArray(b.items) || b.items.length === 0) {
@@ -81,6 +91,7 @@ export function validateOrderPayload(
       city: (b.city as string).trim(),
       province: (b.province as string).trim(),
       postalCode: (b.postalCode as string).trim(),
+      shippingEstimate,
       items,
     },
   };

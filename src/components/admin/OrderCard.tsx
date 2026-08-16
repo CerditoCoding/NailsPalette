@@ -46,6 +46,7 @@ export type Order = {
   city: string;
   province: string;
   postalCode: string;
+  shippingEstimate: number | null;
   total: number;
   status: string;
   createdAt: string;
@@ -99,6 +100,10 @@ export function OrderCard({ order }: { order: Order }) {
         <p>📱 {order.phone}</p>
         <p>
           📍 {order.city}, {order.province} (CP {order.postalCode})
+        </p>
+        <p>
+          🚚 Envío:{" "}
+          {order.shippingEstimate ? currencyFormatter.format(order.shippingEstimate) : "a coordinar"}
         </p>
         <p>💰 Total: {currencyFormatter.format(order.total)}</p>
       </div>

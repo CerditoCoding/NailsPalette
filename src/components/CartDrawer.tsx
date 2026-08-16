@@ -3,16 +3,12 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { buildWhatsappLink } from "@/lib/whatsapp";
+import { formatCurrency } from "@/lib/currency";
 import { CheckoutModal, type CheckoutData } from "@/components/CheckoutModal";
 import { OrderConfirmationModal } from "@/components/OrderConfirmationModal";
 
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
-
 type Stage = "cart" | "checkout" | "success";
+type Shipping = { zoneName: string; price: number };
 
 export function CartDrawer() {
   const { isOpen, closeCart, lines, totalPrice, updateQuantity, removeItem, clear } = useCart();
@@ -20,12 +16,48 @@ export function CartDrawer() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [postalCode, setPostalCode] = useState("");
+  const [shipping, setShipping] = useState<Shipping | null>(null);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
+
   if (!isOpen) return null;
+
+  const grandTotal = totalPrice + (shipping?.price ?? 0);
 
   const resetAndClose = () => {
     setStage("cart");
     setError(null);
+    setPostalCode("");
+    setShipping(null);
+    setShippingError(null);
     closeCart();
+  };
+
+  const handleCalculateShipping = async () => {
+    if (!postalCode.trim()) return;
+    setCalculatingShipping(true);
+    setShippingError(null);
+    setShipping(null);
+
+    try {
+      const res = await fetch("/api/shipping/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postalCode }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setShippingError(data.error ?? "No se pudo calcular el envío.");
+        return;
+      }
+      setShipping({ zoneName: data.zoneName, price: data.price });
+    } catch {
+      setShippingError("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setCalculatingShipping(false);
+    }
   };
 
   const handleCheckoutSubmit = async (data: CheckoutData) => {
@@ -42,6 +74,7 @@ export function CartDrawer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
+          shippingEstimate: shipping?.price ?? 0,
           items: lines.map((line) => ({
             productId: line.productId,
             productName: line.name,
@@ -64,8 +97,13 @@ export function CartDrawer() {
       const detail = lines
         .map((line) => `• ${line.quantity}x ${line.name} (talle ${line.size})`)
         .join("\n");
-      const message = `🆕 Nuevo pedido de ${data.firstName} ${data.lastName}\n${detail}\n\nTotal: ${currencyFormatter.format(
+      const shippingLine = shipping
+        ? `Envío (${shipping.zoneName}): ${formatCurrency(shipping.price)}\n`
+        : "";
+      const message = `🆕 Nuevo pedido de ${data.firstName} ${data.lastName}\n${detail}\n\nSubtotal: ${formatCurrency(
         totalPrice
+      )}\n${shippingLine}Total: ${formatCurrency(
+        totalPrice + (shipping?.price ?? 0)
       )}\n\n📧 ${data.email}\n📱 ${data.phone}\n📍 ${data.city}, ${data.province} (CP ${data.postalCode})`;
 
       if (whatsappWindow) {
@@ -93,6 +131,9 @@ export function CartDrawer() {
         onSubmit={handleCheckoutSubmit}
         submitting={submitting}
         error={error}
+        initialPostalCode={postalCode}
+        subtotal={totalPrice}
+        shipping={shipping}
       />
     );
   }
@@ -124,61 +165,112 @@ export function CartDrawer() {
               Todavía no agregaste diseños.
             </p>
           ) : (
-            <ul className="space-y-4">
-              {lines.map((line) => (
-                <li key={`${line.productId}-${line.size}`} className="flex items-center gap-3">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-pink-100 text-xl">
-                    {line.coverImage.startsWith("emoji:") ? (
-                      line.coverImage.replace("emoji:", "")
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element -- small cart thumbnail, next/image not worth it here
-                      <img
-                        src={line.coverImage}
-                        alt=""
-                        className="h-14 w-14 rounded-lg object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-zinc-900">{line.name}</p>
-                    <p className="text-xs text-zinc-500">
-                      Talle {line.size} · {currencyFormatter.format(line.price)}
-                    </p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(line.productId, line.size, line.quantity - 1)}
-                        className="h-6 w-6 rounded-full border border-pink-200 text-sm text-zinc-600 hover:border-pink-400"
-                      >
-                        −
-                      </button>
-                      <span className="text-sm text-zinc-800">{line.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(line.productId, line.size, line.quantity + 1)}
-                        className="h-6 w-6 rounded-full border border-pink-200 text-sm text-zinc-600 hover:border-pink-400"
-                      >
-                        +
-                      </button>
+            <>
+              <ul className="space-y-4">
+                {lines.map((line) => (
+                  <li key={`${line.productId}-${line.size}`} className="flex items-center gap-3">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-pink-100 text-xl">
+                      {line.coverImage.startsWith("emoji:") ? (
+                        line.coverImage.replace("emoji:", "")
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element -- small cart thumbnail, next/image not worth it here
+                        <img
+                          src={line.coverImage}
+                          alt=""
+                          className="h-14 w-14 rounded-lg object-cover"
+                        />
+                      )}
                     </div>
-                  </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-zinc-900">{line.name}</p>
+                      <p className="text-xs text-zinc-500">
+                        Talle {line.size} · {formatCurrency(line.price)}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(line.productId, line.size, line.quantity - 1)
+                          }
+                          className="h-6 w-6 rounded-full border border-pink-200 text-sm text-zinc-600 hover:border-pink-400"
+                        >
+                          −
+                        </button>
+                        <span className="text-sm text-zinc-800">{line.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(line.productId, line.size, line.quantity + 1)
+                          }
+                          className="h-6 w-6 rounded-full border border-pink-200 text-sm text-zinc-600 hover:border-pink-400"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(line.productId, line.size)}
+                      className="text-xs font-medium text-zinc-400 hover:text-pink-500"
+                    >
+                      Quitar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-6 rounded-lg border border-pink-100 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Calculá tu envío
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={postalCode}
+                    onChange={(e) => {
+                      setPostalCode(e.target.value);
+                      setShipping(null);
+                      setShippingError(null);
+                    }}
+                    placeholder="Código postal"
+                    className="min-w-0 flex-1 rounded-lg border border-pink-200 px-3 py-1.5 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
+                  />
                   <button
                     type="button"
-                    onClick={() => removeItem(line.productId, line.size)}
-                    className="text-xs font-medium text-zinc-400 hover:text-pink-500"
+                    onClick={handleCalculateShipping}
+                    disabled={calculatingShipping || !postalCode.trim()}
+                    className="shrink-0 rounded-lg bg-pink-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-pink-500 disabled:opacity-60"
                   >
-                    Quitar
+                    {calculatingShipping ? "..." : "Calcular"}
                   </button>
-                </li>
-              ))}
-            </ul>
+                </div>
+                {shipping && (
+                  <p className="mt-2 text-xs font-medium text-green-600">
+                    Envío a {shipping.zoneName}: {formatCurrency(shipping.price)}
+                  </p>
+                )}
+                {shippingError && (
+                  <p className="mt-2 text-xs text-pink-500">{shippingError}</p>
+                )}
+              </div>
+            </>
           )}
         </div>
 
         <div className="border-t border-pink-100 px-5 py-4">
-          <div className="mb-3 flex items-center justify-between text-sm font-semibold text-zinc-900">
-            <span>Total</span>
-            <span>{currencyFormatter.format(totalPrice)}</span>
+          <div className="mb-3 space-y-1 text-sm">
+            <div className="flex items-center justify-between text-zinc-600">
+              <span>Subtotal</span>
+              <span>{formatCurrency(totalPrice)}</span>
+            </div>
+            <div className="flex items-center justify-between text-zinc-600">
+              <span>Envío</span>
+              <span>{shipping ? formatCurrency(shipping.price) : "—"}</span>
+            </div>
+            <div className="flex items-center justify-between font-semibold text-zinc-900">
+              <span>Total</span>
+              <span>{formatCurrency(grandTotal)}</span>
+            </div>
           </div>
           <button
             type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatCurrency } from "@/lib/currency";
 
 export type CheckoutData = {
   firstName: string;
@@ -27,11 +28,17 @@ export function CheckoutModal({
   onSubmit,
   submitting,
   error,
+  initialPostalCode,
+  subtotal,
+  shipping,
 }: {
   onCancel: () => void;
   onSubmit: (data: CheckoutData) => void;
   submitting: boolean;
   error: string | null;
+  initialPostalCode?: string;
+  subtotal: number;
+  shipping: { zoneName: string; price: number } | null;
 }) {
   const [data, setData] = useState<CheckoutData>({
     firstName: "",
@@ -40,7 +47,7 @@ export function CheckoutModal({
     phone: "",
     city: "",
     province: "",
-    postalCode: "",
+    postalCode: initialPostalCode ?? "",
   });
 
   const handleChange = (name: keyof CheckoutData, value: string) => {
@@ -51,6 +58,8 @@ export function CheckoutModal({
     e.preventDefault();
     onSubmit(data);
   };
+
+  const total = subtotal + (shipping?.price ?? 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -65,6 +74,21 @@ export function CheckoutModal({
           >
             ×
           </button>
+        </div>
+
+        <div className="mb-4 space-y-1 rounded-lg bg-pink-50/60 px-3 py-2 text-sm text-zinc-700">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{formatCurrency(subtotal)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Envío{shipping ? ` (${shipping.zoneName})` : ""}</span>
+            <span>{shipping ? formatCurrency(shipping.price) : "a coordinar"}</span>
+          </div>
+          <div className="flex justify-between border-t border-pink-100 pt-1 font-semibold text-zinc-900">
+            <span>Total</span>
+            <span>{formatCurrency(total)}</span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -83,9 +107,12 @@ export function CheckoutModal({
             </div>
           ))}
 
-          <p className="rounded-lg bg-pink-50 px-3 py-2 text-xs text-pink-600">
-            📦 El costo de envío se coordina por WhatsApp según tu código postal.
-          </p>
+          {!shipping && (
+            <p className="rounded-lg bg-pink-50 px-3 py-2 text-xs text-pink-600">
+              📦 Todavía no calculaste el envío en el carrito — lo coordinamos por WhatsApp según
+              tu código postal.
+            </p>
+          )}
 
           {error && <p className="text-sm text-red-500">{error}</p>}
 

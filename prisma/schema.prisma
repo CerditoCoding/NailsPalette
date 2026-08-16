@@ -60,6 +60,15 @@ model Product {
   orderItems    OrderItem[]
 }
 
+model ShippingZone {
+  id        String   @id @default(cuid())
+  name      String
+  cpFrom    Int
+  cpTo      Int
+  price     Int
+  createdAt DateTime @default(now())
+}
+
 model ShowcasePhoto {
   id        String   @id @default(cuid())
   url       String
