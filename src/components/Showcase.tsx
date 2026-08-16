@@ -33,7 +33,7 @@ export function Showcase({ photos }: { photos: string[] }) {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-center text-xl font-bold text-zinc-900">Diseños para vos</h2>
 
-        <div className="relative aspect-[5/4] overflow-hidden sm:aspect-[2/1]">
+        <div className="relative isolate aspect-[5/4] overflow-hidden sm:aspect-[2/1]">
           {photos.map((url, i) => {
             const delta = circularDelta(i, index, photos.length);
             const distance = Math.abs(delta);
@@ -53,7 +53,7 @@ export function Showcase({ photos }: { photos: string[] }) {
                   transform: `translate(calc(-50% + ${delta * 20}%), -50%) scale(${scale})`,
                   opacity,
                   filter: `blur(${blurPx}px) brightness(${brightness})`,
-                  zIndex: 100 - distance,
+                  zIndex: 10 - distance,
                 }}
               >
                 <Image
