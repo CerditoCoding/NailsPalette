@@ -75,6 +75,10 @@ async function getToken(config: MiCorreoConfig): Promise<string> {
   });
 
   if (!res.ok) {
+    const bodyText = await res.text().catch(() => "");
+    console.error(
+      `[MiCorreo] Falló la autenticación en /token (status ${res.status}, usuario ${config.user}): ${bodyText}`
+    );
     throw new Error(`MiCorreo: no se pudo autenticar (status ${res.status})`);
   }
 
@@ -107,16 +111,28 @@ export async function quoteShipping(postalCodeDestination: string): Promise<Ship
       }),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      console.error(
+        `[MiCorreo] Falló /rates (status ${res.status}) para CP origen ${config.originPostalCode} -> destino ${postalCodeDestination}, customerId ${config.customerId}: ${bodyText}`
+      );
+      return null;
+    }
 
     const data = (await res.json()) as {
       rates?: { productName?: string; price?: number }[];
     };
     const rate = data.rates?.[0];
-    if (!rate || typeof rate.price !== "number") return null;
+    if (!rate || typeof rate.price !== "number") {
+      console.error(
+        `[MiCorreo] /rates respondió sin tarifas para CP origen ${config.originPostalCode} -> destino ${postalCodeDestination}: ${JSON.stringify(data)}`
+      );
+      return null;
+    }
 
     return { label: rate.productName ?? "Correo Argentino", price: Math.round(rate.price) };
-  } catch {
+  } catch (err) {
+    console.error("[MiCorreo] Error al cotizar:", err);
     return null;
   }
 }
