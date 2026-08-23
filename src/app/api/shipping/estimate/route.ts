@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parsePostalCodeNumber } from "@/lib/postalCode";
+import { quoteShipping } from "@/lib/micorreo";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -16,6 +17,14 @@ export async function POST(request: Request) {
       { error: "No pudimos interpretar ese código postal." },
       { status: 400 }
     );
+  }
+
+  // Si MiCorreo está configurado (variables de entorno cargadas), cotizamos
+  // en vivo contra Correo Argentino. Si no está configurado o falla la
+  // llamada, seguimos con las zonas manuales cargadas por el admin.
+  const liveQuote = await quoteShipping(String(cp));
+  if (liveQuote) {
+    return NextResponse.json({ zoneName: liveQuote.label, price: liveQuote.price });
   }
 
   const zone = await prisma.shippingZone.findFirst({
