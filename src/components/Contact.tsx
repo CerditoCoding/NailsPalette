@@ -18,7 +18,7 @@ export function Contact() {
           WhatsApp
         </a>
         <a
-          href="https://instagram.com"
+          href="https://www.instagram.com/nails_palette_/"
           target="_blank"
           rel="noopener noreferrer"
           className="rounded-full border border-pink-300 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-pink-500 hover:border-pink-400"

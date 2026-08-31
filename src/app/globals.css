@@ -17,3 +17,22 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Scroll suave al navegar por los anclas del menú (#inicio, #catalogo, etc.),
+ * con margen para que la sección no quede tapada por el header sticky. */
+html {
+  scroll-behavior: smooth;
+}
+
+#inicio,
+#catalogo,
+#como-pedir,
+#contacto {
+  scroll-margin-top: 88px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
