@@ -4,7 +4,7 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-import { FloatingWhatsapp } from "@/components/FloatingWhatsapp";
+import { FloatingActions } from "@/components/FloatingActions";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +57,7 @@ export default async function MisDisenosPage() {
       </main>
       <Footer />
       <CartDrawer />
-      <FloatingWhatsapp />
+      <FloatingActions />
     </div>
   );
 }

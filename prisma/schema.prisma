@@ -93,6 +93,7 @@ model ProductImage {
 
 model Order {
   id               String      @id @default(cuid())
+  orderNumber      Int         @unique
   firstName        String
   lastName         String
   email            String
@@ -102,9 +103,19 @@ model Order {
   postalCode       String
   shippingEstimate Int?
   total            Int
-  status           String      @default("nuevo")
+  status           String      @default("NUEVO")
+  trackingCode     String?
+  trackingUrl      String?
   createdAt        DateTime    @default(now())
   items            OrderItem[]
+
+  @@index([status])
+}
+
+model FreedOrderNumber {
+  id      String   @id @default(cuid())
+  number  Int      @unique
+  freedAt DateTime @default(now())
 }
 
 model OrderItem {

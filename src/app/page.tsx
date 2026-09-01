@@ -8,7 +8,7 @@ import { HowToOrder } from "@/components/HowToOrder";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-import { FloatingWhatsapp } from "@/components/FloatingWhatsapp";
+import { FloatingActions } from "@/components/FloatingActions";
 import { CookieBanner } from "@/components/CookieBanner";
 import { prisma } from "@/lib/prisma";
 import type { CatalogProduct } from "@/types/catalog";
@@ -65,7 +65,7 @@ export default async function Home() {
       </main>
       <Footer />
       <CartDrawer />
-      <FloatingWhatsapp />
+      <FloatingActions />
       <CookieBanner />
     </div>
   );

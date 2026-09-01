@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-import { FloatingWhatsapp } from "@/components/FloatingWhatsapp";
+import { FloatingActions } from "@/components/FloatingActions";
 import { ProductGallery } from "@/components/ProductGallery";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
 
@@ -84,7 +84,7 @@ export default async function ProductDetailPage({
       </main>
       <Footer />
       <CartDrawer />
-      <FloatingWhatsapp />
+      <FloatingActions />
     </div>
   );
 }
