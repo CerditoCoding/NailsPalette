@@ -1,4 +1,6 @@
-export function Hero() {
+import { MisDisenosButton } from "@/components/MisDisenosButton";
+
+export function Hero({ previewPhotos }: { previewPhotos: string[] }) {
   return (
     <section
       id="inicio"
@@ -15,13 +17,14 @@ export function Hero() {
           Elegí tu diseño favorito del catálogo y coordinamos tu pedido por
           WhatsApp. Reutilizables, fáciles de aplicar y hechas con amor.
         </p>
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
           <a
             href="#catalogo"
             className="rounded-full bg-pink-400 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white hover:bg-pink-500"
           >
             Ver catálogo
           </a>
+          <MisDisenosButton previewPhotos={previewPhotos} />
           <a
             href="#como-pedir"
             className="rounded-full border border-pink-300 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-pink-500 hover:border-pink-400"

@@ -16,7 +16,7 @@ import type { CatalogProduct } from "@/types/catalog";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [products, collections, shapes, showcasePhotos] = await Promise.all([
+  const [products, collections, shapes, showcasePhotos, designPhotos] = await Promise.all([
     prisma.product.findMany({
       where: { active: true },
       include: { collection: true, shape: true, designLevel: true, sizes: true, images: true },
@@ -25,6 +25,7 @@ export default async function Home() {
     prisma.collection.findMany({ orderBy: { name: "asc" } }),
     prisma.shape.findMany({ orderBy: { name: "asc" } }),
     prisma.showcasePhoto.findMany({ orderBy: { position: "asc" } }),
+    prisma.designPhoto.findMany({ orderBy: { position: "asc" }, take: 3 }),
   ]);
 
   const catalogProducts: CatalogProduct[] = products.map((product) => ({
@@ -50,7 +51,7 @@ export default async function Home() {
       <AnnouncementBar />
       <Header />
       <main className="flex-1">
-        <Hero />
+        <Hero previewPhotos={designPhotos.map((p) => p.url)} />
         <Showcase photos={showcasePhotos.map((p) => p.url)} />
         <InfoStrip />
         <Catalog
