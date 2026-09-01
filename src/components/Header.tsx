@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 const NAV_LINKS = [
-  { label: "Inicio", href: "#inicio" },
-  { label: "Catálogo", href: "#catalogo" },
-  { label: "Cómo pedir", href: "#como-pedir" },
-  { label: "Contacto", href: "#contacto" },
+  { label: "Inicio", href: "/#inicio" },
+  { label: "Catálogo", href: "/#catalogo" },
+  { label: "Cómo pedir", href: "/#como-pedir" },
+  { label: "Contacto", href: "/#contacto" },
 ];
 
 export function Header() {
@@ -16,7 +16,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-pink-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link href="#inicio" className="flex items-center gap-3">
+        <Link href="/#inicio" className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-fuchsia-400 text-lg font-bold text-white shadow-sm">
             NP
           </span>
