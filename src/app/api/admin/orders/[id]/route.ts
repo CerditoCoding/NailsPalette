@@ -10,7 +10,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await request.json().catch(() => null) as
-    | { status?: unknown; trackingCode?: unknown; trackingUrl?: unknown }
+    | { status?: unknown; trackingCode?: unknown; trackingUrl?: unknown; shippingEstimate?: unknown }
     | null;
 
   const status = body?.status;
@@ -21,14 +21,31 @@ export async function PATCH(
   const trackingCode = typeof body?.trackingCode === "string" ? body.trackingCode : undefined;
   const trackingUrl = typeof body?.trackingUrl === "string" ? body.trackingUrl : undefined;
 
-  const before = await prisma.order.findUnique({ where: { id } });
+  let shippingEstimate: number | undefined;
+  if (body?.shippingEstimate !== undefined) {
+    const parsed = Number(body.shippingEstimate);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return NextResponse.json({ error: "El costo de envío no es válido." }, { status: 400 });
+    }
+    shippingEstimate = Math.round(parsed);
+  }
+
+  const before = await prisma.order.findUnique({ where: { id }, include: { items: true } });
   if (!before) {
     return NextResponse.json({ error: "No se encontró el pedido." }, { status: 404 });
   }
 
+  // Mientras no tengamos la cotización en vivo de Correo Argentino, el envío
+  // se carga a mano desde el pedido — al guardarlo, el total se recalcula
+  // solo a partir de los ítems más el nuevo costo de envío.
+  const total =
+    shippingEstimate !== undefined
+      ? before.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0) + shippingEstimate
+      : undefined;
+
   const item = await prisma.order.update({
     where: { id },
-    data: { status, trackingCode, trackingUrl },
+    data: { status, trackingCode, trackingUrl, shippingEstimate, total },
   });
 
   // Solo avisamos por mail si el estado realmente cambió — si el admin
