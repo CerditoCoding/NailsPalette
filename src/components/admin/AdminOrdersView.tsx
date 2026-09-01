@@ -6,7 +6,21 @@ import { ORDER_STATUSES, STATUS_LABELS } from "@/lib/orderStatus";
 
 export function AdminOrdersView({ initialOrders }: { initialOrders: Order[] }) {
   const [orders, setOrders] = useState(initialOrders);
+  const [syncedOrders, setSyncedOrders] = useState(initialOrders);
   const [selected, setSelected] = useState<Set<string>>(new Set(ORDER_STATUSES));
+
+  // Cada vez que la página del admin vuelve a pedir los pedidos al server
+  // (router.refresh() después de cambiar un estado, guardar seguimiento,
+  // etc.), este componente recibe un `initialOrders` nuevo — sin esto, el
+  // pedidos de arriba se queda para siempre con la foto del primer
+  // montaje y un pedido filtrado y vuelto a mostrar "revive" con datos
+  // viejos. Se ajusta durante el render (patrón recomendado por React
+  // para "adjusting state when a prop changes"), no en un useEffect, para
+  // no disparar un re-render en cascada.
+  if (initialOrders !== syncedOrders) {
+    setSyncedOrders(initialOrders);
+    setOrders(initialOrders);
+  }
 
   const toggleStatus = (status: string) => {
     setSelected((prev) => {
@@ -16,6 +30,8 @@ export function AdminOrdersView({ initialOrders }: { initialOrders: Order[] }) {
       return next;
     });
   };
+
+  const selectAllStatuses = () => setSelected(new Set(ORDER_STATUSES));
 
   const filtered = useMemo(
     () => orders.filter((order) => selected.has(order.status)),
@@ -49,6 +65,13 @@ export function AdminOrdersView({ initialOrders }: { initialOrders: Order[] }) {
             </li>
           ))}
         </ul>
+        <button
+          type="button"
+          onClick={selectAllStatuses}
+          className="mt-3 text-xs font-semibold uppercase tracking-wide text-pink-500 hover:text-pink-600"
+        >
+          Marcar todos
+        </button>
       </aside>
 
       <div className="flex-1 space-y-4">

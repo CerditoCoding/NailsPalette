@@ -60,6 +60,34 @@ export function OrderCard({
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [syncedFrom, setSyncedFrom] = useState({
+    status: order.status,
+    trackingCode: order.trackingCode,
+    trackingUrl: order.trackingUrl,
+  });
+
+  // Si el prop trae datos más nuevos que los últimos que sincronizamos
+  // (por ej. después de un router.refresh(), o porque el pedido se
+  // remontó al filtrarlo y volver a mostrarlo), el estado local tiene que
+  // ponerse al día en vez de quedarse pegado al valor que tenía la
+  // primera vez que se montó el componente. Se ajusta durante el render
+  // (no en un useEffect) para no disparar un re-render en cascada, y solo
+  // cuando el valor realmente cambió, para no pisar lo que la admin esté
+  // tipeando en los campos de seguimiento sin motivo.
+  if (
+    order.status !== syncedFrom.status ||
+    order.trackingCode !== syncedFrom.trackingCode ||
+    order.trackingUrl !== syncedFrom.trackingUrl
+  ) {
+    setSyncedFrom({
+      status: order.status,
+      trackingCode: order.trackingCode,
+      trackingUrl: order.trackingUrl,
+    });
+    setStatus(order.status as OrderStatus);
+    setTrackingCode(order.trackingCode ?? "");
+    setTrackingUrl(order.trackingUrl ?? "");
+  }
 
   const contactMessage = `¡Hola ${order.firstName}! Te escribo de Nails Palette por tu pedido:\n${order.items
     .map((item) => `• ${item.quantity}x ${item.productName} (talle ${item.size})`)
