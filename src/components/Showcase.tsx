@@ -58,7 +58,7 @@ export function Showcase({ photos }: { photos: string[] }) {
               >
                 <Image
                   src={url}
-                  alt=""
+                  alt={`Diseño de uñas press on de Nails Palette #${i + 1}`}
                   fill
                   sizes="(max-width: 640px) 64vw, 46vw"
                   className="rounded-2xl object-cover shadow-lg"

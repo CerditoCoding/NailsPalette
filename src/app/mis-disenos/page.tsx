@@ -44,14 +44,14 @@ export default async function MisDisenosPage() {
             </p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              {photos.map((photo) => (
+              {photos.map((photo, index) => (
                 <div
                   key={photo.id}
                   className="relative aspect-square overflow-hidden rounded-xl bg-pink-50"
                 >
                   <Image
                     src={photo.url}
-                    alt=""
+                    alt={`Diseño de uñas press on hecho por Nails Palette #${index + 1}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                     className="object-cover"

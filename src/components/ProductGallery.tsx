@@ -4,7 +4,17 @@ import { useState } from "react";
 import Image from "next/image";
 import { emojiFromPlaceholder, gradientFor, isEmojiPlaceholder } from "@/lib/placeholderGradient";
 
-function GalleryImage({ url, seed, className }: { url: string; seed: string; className?: string }) {
+function GalleryImage({
+  url,
+  seed,
+  alt,
+  className,
+}: {
+  url: string;
+  seed: string;
+  alt: string;
+  className?: string;
+}) {
   if (isEmojiPlaceholder(url)) {
     return (
       <div
@@ -16,16 +26,18 @@ function GalleryImage({ url, seed, className }: { url: string; seed: string; cla
   }
   return (
     <div className={`relative overflow-hidden ${className ?? ""}`}>
-      <Image src={url} alt="" fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
+      <Image src={url} alt={alt} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
     </div>
   );
 }
 
 export function ProductGallery({
   productId,
+  productName,
   images,
 }: {
   productId: string;
+  productName: string;
   images: string[];
 }) {
   const [active, setActive] = useState(0);
@@ -36,6 +48,7 @@ export function ProductGallery({
       <GalleryImage
         url={gallery[active]}
         seed={`${productId}-${active}`}
+        alt={gallery.length > 1 ? `${productName} — foto ${active + 1} de ${gallery.length}` : productName}
         className="aspect-square w-full rounded-2xl"
       />
       {gallery.length > 1 && (
@@ -49,7 +62,12 @@ export function ProductGallery({
                 active === index ? "border-pink-400" : "border-transparent"
               }`}
             >
-              <GalleryImage url={url} seed={`${productId}-${index}`} className="h-full w-full" />
+              <GalleryImage
+                url={url}
+                seed={`${productId}-${index}`}
+                alt={`Miniatura ${index + 1} de ${productName}`}
+                className="h-full w-full"
+              />
             </button>
           ))}
         </div>

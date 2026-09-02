@@ -115,7 +115,7 @@ export default async function ProductDetailPage({
           </Link>
 
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-            <ProductGallery productId={product.id} images={gallery} />
+            <ProductGallery productId={product.id} productName={product.name} images={gallery} />
 
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-pink-500">
