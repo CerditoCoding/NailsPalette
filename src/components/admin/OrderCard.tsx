@@ -56,9 +56,6 @@ export function OrderCard({
   const [status, setStatus] = useState<OrderStatus>(order.status as OrderStatus);
   const [trackingCode, setTrackingCode] = useState(order.trackingCode ?? "");
   const [trackingUrl, setTrackingUrl] = useState(order.trackingUrl ?? "");
-  const [shippingInput, setShippingInput] = useState(
-    order.shippingEstimate != null ? String(order.shippingEstimate) : ""
-  );
   const [updating, setUpdating] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -67,7 +64,6 @@ export function OrderCard({
     status: order.status,
     trackingCode: order.trackingCode,
     trackingUrl: order.trackingUrl,
-    shippingEstimate: order.shippingEstimate,
   });
 
   // Si el prop trae datos más nuevos que los últimos que sincronizamos
@@ -81,29 +77,23 @@ export function OrderCard({
   if (
     order.status !== syncedFrom.status ||
     order.trackingCode !== syncedFrom.trackingCode ||
-    order.trackingUrl !== syncedFrom.trackingUrl ||
-    order.shippingEstimate !== syncedFrom.shippingEstimate
+    order.trackingUrl !== syncedFrom.trackingUrl
   ) {
     setSyncedFrom({
       status: order.status,
       trackingCode: order.trackingCode,
       trackingUrl: order.trackingUrl,
-      shippingEstimate: order.shippingEstimate,
     });
     setStatus(order.status as OrderStatus);
     setTrackingCode(order.trackingCode ?? "");
     setTrackingUrl(order.trackingUrl ?? "");
-    setShippingInput(order.shippingEstimate != null ? String(order.shippingEstimate) : "");
   }
 
   const contactMessage = `¡Hola ${order.firstName}! Te escribo de Nails Palette por tu pedido:\n${order.items
     .map((item) => `• ${item.quantity}x ${item.productName} (talle ${item.size})`)
     .join("\n")}\n\nTotal: ${formatCurrency(order.total)}`;
 
-  const persistStatus = async (
-    next: OrderStatus,
-    extra?: { trackingCode?: string; trackingUrl?: string; shippingEstimate?: number }
-  ) => {
+  const persistStatus = async (next: OrderStatus, extra?: { trackingCode?: string; trackingUrl?: string }) => {
     setUpdating(true);
     setError(null);
     const res = await fetch(`/api/admin/orders/${order.id}`, {
@@ -123,15 +113,6 @@ export function OrderCard({
 
   const handleSaveTracking = () => {
     void persistStatus("ENVIADO", { trackingCode, trackingUrl });
-  };
-
-  const handleSaveShipping = () => {
-    const parsed = Number(shippingInput);
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      setError("Ingresá un costo de envío válido.");
-      return;
-    }
-    void persistStatus(status, { shippingEstimate: Math.round(parsed) });
   };
 
   const handleDelete = async () => {
@@ -173,32 +154,10 @@ export function OrderCard({
         <p>
           📍 {order.city}, {order.province} (CP {order.postalCode})
         </p>
-        {/* Hasta que la cotización en vivo de Correo Argentino esté activa,
-            el costo de envío se carga a mano acá y el total se recalcula
-            solo a partir de los ítems del pedido. */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span>🚚 Envío:</span>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={shippingInput}
-            onChange={(e) => setShippingInput(e.target.value)}
-            placeholder="Monto"
-            className="w-24 rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={handleSaveShipping}
-            disabled={updating}
-            className="rounded-full bg-pink-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-pink-600 hover:bg-pink-200 disabled:opacity-50"
-          >
-            Guardar
-          </button>
-          {order.shippingEstimate == null && (
-            <span className="text-xs text-zinc-400">(a coordinar)</span>
-          )}
-        </div>
+        <p>
+          🚚 Envío:{" "}
+          {order.shippingEstimate ? formatCurrency(order.shippingEstimate) : "a coordinar"}
+        </p>
         <p>💰 Total: {formatCurrency(order.total)}</p>
       </div>
 

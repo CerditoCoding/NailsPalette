@@ -60,8 +60,13 @@ export async function POST(request: Request) {
 
   if (!order) throw lastError;
 
-  // El mail es un extra, nunca debe romper la confirmación del pedido.
-  void sendOrderEmail({
+  // El mail es un extra: sendOrderEmail nunca tira (atrapa sus propios
+  // errores), así que esperarlo no le agrega riesgo a la confirmación del
+  // pedido. Hace falta el await igual — en una función serverless, un
+  // "fire and forget" sin esperar corre el riesgo de que el proceso se
+  // congele apenas se manda la respuesta, cortando el envío a mitad de
+  // camino sin que el mail llegue a salir.
+  await sendOrderEmail({
     to: order.email,
     subject: "Tu pedido en Nails Palette",
     heading: "¡Gracias por elegir Nails Palette!",
@@ -71,7 +76,7 @@ export async function POST(request: Request) {
     ctaLabel: "Ver mi pedido",
     ctaUrl: `${getSiteUrl()}/pedido/${order.id}`,
     closingLine: "¡En breve nos vamos a estar comunicando contigo!",
-  }).catch((err) => console.error("[orders] mail de confirmación falló", err));
+  });
 
   return NextResponse.json({ item: order }, { status: 201 });
 }

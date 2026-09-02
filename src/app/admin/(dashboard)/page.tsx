@@ -7,7 +7,7 @@ export default async function AdminHomePage() {
   const [productCount, orderCount, newOrderCount, tagCount] = await Promise.all([
     prisma.product.count(),
     prisma.order.count(),
-    prisma.order.count({ where: { status: "nuevo" } }),
+    prisma.order.count({ where: { status: "NUEVO" } }),
     prisma.collection.count().then(async (c) => {
       const shapes = await prisma.shape.count();
       const sizes = await prisma.size.count();
