@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateOrderPayload } from "@/lib/orderPayload";
 import { allocateOrderNumber, isOrderNumberCollision } from "@/lib/orderNumber";
-import { sendOrderEmail, getSiteUrl } from "@/lib/email";
+import { sendOrderEmail, getSiteUrl, getAdminNotificationEmail } from "@/lib/email";
 import { formatOrderNumber } from "@/lib/orderStatus";
+import { formatCurrency } from "@/lib/currency";
 
 const MAX_ATTEMPTS = 2;
 
@@ -61,24 +62,52 @@ export async function POST(request: Request) {
 
   if (!order) throw lastError;
 
-  // El mail es un extra: sendOrderEmail nunca tira (atrapa sus propios
-  // errores), así que esperarlo no le agrega riesgo a la confirmación del
+  // Los mails son un extra: sendOrderEmail nunca tira (atrapa sus propios
+  // errores), así que esperarlos no le agrega riesgo a la confirmación del
   // pedido. Hace falta el await igual — en una función serverless, un
   // "fire and forget" sin esperar corre el riesgo de que el proceso se
   // congele apenas se manda la respuesta, cortando el envío a mitad de
   // camino sin que el mail llegue a salir.
-  await sendOrderEmail({
-    to: order.email,
-    subject: `Tu pedido #${formatOrderNumber(order.orderNumber)} en Nails Palette`,
-    heading: "¡Gracias por elegir Nails Palette!",
-    orderNumber: order.orderNumber,
-    bodyLines: [
-      "En el siguiente link, vas a poder acceder a tu pedido para ver el detalle y el estado del mismo:",
-    ],
-    ctaLabel: "Ver mi pedido",
-    ctaUrl: `${getSiteUrl()}/pedido/${order.id}`,
-    closingLine: "¡En breve nos vamos a estar comunicando contigo!",
-  });
+  const adminEmail = getAdminNotificationEmail();
+
+  await Promise.all([
+    sendOrderEmail({
+      to: order.email,
+      subject: `Tu pedido #${formatOrderNumber(order.orderNumber)} en Nails Palette`,
+      heading: "¡Gracias por elegir Nails Palette!",
+      orderNumber: order.orderNumber,
+      bodyLines: [
+        "En el siguiente link, vas a poder acceder a tu pedido para ver el detalle y el estado del mismo:",
+      ],
+      ctaLabel: "Ver mi pedido",
+      ctaUrl: `${getSiteUrl()}/pedido/${order.id}`,
+      closingLine: "¡En breve nos vamos a estar comunicando contigo!",
+    }),
+    // Aviso a la dueña para que se comunique con la clienta — hasta que
+    // tengamos WhatsApp Business, este mail reemplaza al popup de WhatsApp
+    // que antes tenía que mandar la propia clienta a mano.
+    adminEmail
+      ? sendOrderEmail({
+          to: adminEmail,
+          subject: `🆕 Pedido #${formatOrderNumber(order.orderNumber)} — ${order.firstName} ${order.lastName}`,
+          heading: "¡Nuevo pedido recibido!",
+          orderNumber: order.orderNumber,
+          bodyLines: [
+            ...order.items.map(
+              (item) => `• ${item.quantity}x ${item.productName} (talle ${item.size})`
+            ),
+            `Envío: ${order.shippingEstimate ? formatCurrency(order.shippingEstimate) : "a coordinar"}`,
+            `Total: ${formatCurrency(order.total)}`,
+            `📱 ${order.phone}`,
+            `📧 ${order.email}`,
+            `📍 ${order.city}, ${order.province} (CP ${order.postalCode})`,
+          ],
+          ctaLabel: "Ver en el panel",
+          ctaUrl: `${getSiteUrl()}/admin/pedidos`,
+          closingLine: "Comunicate con la clienta a la brevedad.",
+        })
+      : Promise.resolve(),
+  ]);
 
   return NextResponse.json({ item: order }, { status: 201 });
 }

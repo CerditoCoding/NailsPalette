@@ -21,6 +21,13 @@ export function getSiteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://nails-palette.vercel.app";
 }
 
+/** Mail de la dueña para avisarle de pedidos nuevos, mientras no tengamos
+ * WhatsApp Business para notificarle ahí directo. Opcional, mismo patrón
+ * de apagado gracioso: sin la variable cargada, no se manda nada. */
+export function getAdminNotificationEmail(): string | null {
+  return process.env.ADMIN_NOTIFICATION_EMAIL || null;
+}
+
 /** Nunca tira: si falla el envío, solo loguea. Un mail que falla no debe
  * romper la creación del pedido ni el cambio de estado. */
 export async function sendOrderEmail(params: {

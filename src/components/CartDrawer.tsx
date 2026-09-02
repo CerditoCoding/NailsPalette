@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { buildWhatsappLink } from "@/lib/whatsapp";
 import { formatCurrency } from "@/lib/currency";
 import { CheckoutModal, type CheckoutData } from "@/components/CheckoutModal";
 import { OrderConfirmationModal } from "@/components/OrderConfirmationModal";
@@ -64,10 +63,6 @@ export function CartDrawer() {
     setSubmitting(true);
     setError(null);
 
-    // Abrimos la pestaña ya mismo (dentro del gesto del usuario) para evitar
-    // que el navegador bloquee el popup una vez resuelto el fetch.
-    const whatsappWindow = window.open("", "_blank");
-
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -88,32 +83,16 @@ export function CartDrawer() {
       const responseData = await res.json();
 
       if (!res.ok) {
-        whatsappWindow?.close();
         setError(responseData.error ?? "No se pudo confirmar el pedido.");
         setSubmitting(false);
         return;
       }
 
-      const detail = lines
-        .map((line) => `• ${line.quantity}x ${line.name} (talle ${line.size})`)
-        .join("\n");
-      const shippingLine = shipping
-        ? `Envío (${shipping.zoneName}): ${formatCurrency(shipping.price)}\n`
-        : "";
-      const message = `🆕 Nuevo pedido de ${data.firstName} ${data.lastName}\n${detail}\n\nSubtotal: ${formatCurrency(
-        totalPrice
-      )}\n${shippingLine}Total: ${formatCurrency(
-        totalPrice + (shipping?.price ?? 0)
-      )}\n\n📧 ${data.email}\n📱 ${data.phone}\n📍 ${data.city}, ${data.province} (CP ${data.postalCode})`;
-
-      if (whatsappWindow) {
-        whatsappWindow.location.href = buildWhatsappLink(message);
-      }
-
+      // El aviso a la dueña ahora lo manda el server por mail apenas se crea
+      // el pedido — la clienta ya no tiene que mandar nada más por WhatsApp.
       clear();
       setStage("success");
     } catch {
-      whatsappWindow?.close();
       setError("Error de conexión. Intentá de nuevo.");
     } finally {
       setSubmitting(false);
