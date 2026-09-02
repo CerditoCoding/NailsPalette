@@ -36,6 +36,7 @@ export type Order = {
   city: string;
   province: string;
   postalCode: string;
+  notes: string | null;
   shippingEstimate: number | null;
   total: number;
   status: string;
@@ -169,6 +170,12 @@ export function OrderCard({
           </li>
         ))}
       </ul>
+
+      {order.notes && (
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          📝 <span className="font-semibold">Notas:</span> {order.notes}
+        </p>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <a

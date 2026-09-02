@@ -11,6 +11,7 @@ export type CheckoutData = {
   city: string;
   province: string;
   postalCode: string;
+  notes: string;
 };
 
 const FIELDS: { name: keyof CheckoutData; label: string; type: string }[] = [
@@ -48,6 +49,7 @@ export function CheckoutModal({
     city: "",
     province: "",
     postalCode: initialPostalCode ?? "",
+    notes: "",
   });
 
   const handleChange = (name: keyof CheckoutData, value: string) => {
@@ -106,6 +108,20 @@ export function CheckoutModal({
               />
             </div>
           ))}
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Notas opcionales
+            </label>
+            <textarea
+              value={data.notes}
+              onChange={(e) => handleChange("notes", e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder="¿Algo más que quieras contarnos sobre tu pedido?"
+              className="w-full resize-none rounded-lg border border-pink-200 px-3 py-2 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
+            />
+          </div>
 
           {!shipping && (
             <p className="rounded-lg bg-pink-50 px-3 py-2 text-xs text-pink-600">

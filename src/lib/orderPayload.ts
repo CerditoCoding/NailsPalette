@@ -14,9 +14,12 @@ export type OrderPayload = {
   city: string;
   province: string;
   postalCode: string;
+  notes: string | null;
   shippingEstimate: number;
   items: OrderItemInput[];
 };
+
+const NOTES_MAX_LENGTH = 500;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,6 +50,16 @@ export function validateOrderPayload(
   const email = (b.email as string).trim();
   if (!EMAIL_REGEX.test(email)) {
     return { error: "El correo electrónico no es válido." };
+  }
+
+  let notes: string | null = null;
+  if (b.notes !== undefined && b.notes !== null) {
+    if (typeof b.notes !== "string") return { error: "Las notas no son válidas." };
+    const trimmed = b.notes.trim();
+    if (trimmed.length > NOTES_MAX_LENGTH) {
+      return { error: `Las notas no pueden superar los ${NOTES_MAX_LENGTH} caracteres.` };
+    }
+    notes = trimmed || null;
   }
 
   let shippingEstimate = 0;
@@ -91,6 +104,7 @@ export function validateOrderPayload(
       city: (b.city as string).trim(),
       province: (b.province as string).trim(),
       postalCode: (b.postalCode as string).trim(),
+      notes,
       shippingEstimate,
       items,
     },

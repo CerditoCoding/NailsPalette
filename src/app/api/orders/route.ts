@@ -36,6 +36,7 @@ export async function POST(request: Request) {
             city: data.city,
             province: data.province,
             postalCode: data.postalCode,
+            notes: data.notes,
             shippingEstimate: data.shippingEstimate,
             total,
             items: {
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
             `📱 ${order.phone}`,
             `📧 ${order.email}`,
             `📍 ${order.city}, ${order.province} (CP ${order.postalCode})`,
+            ...(order.notes ? [`📝 Notas: ${order.notes}`] : []),
           ],
           ctaLabel: "Ver en el panel",
           ctaUrl: `${getSiteUrl()}/admin/pedidos`,

@@ -101,6 +101,7 @@ model Order {
   city             String
   province         String
   postalCode       String
+  notes            String?
   shippingEstimate Int?
   total            Int
   status           String      @default("NUEVO")
