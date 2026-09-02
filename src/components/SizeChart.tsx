@@ -59,7 +59,7 @@ export function SizeChart() {
 
       <p className="mt-5 text-center text-xs font-medium text-pink-700 sm:text-sm">
         Si ningún talle coincide con tus medidas, después de comprar dejá tus medidas en cm en las
-        notas opcionales de la web o pasámelas por Instagram.
+        notas opcionales de la web o pasámelas por WhatsApp.
       </p>
     </div>
   );

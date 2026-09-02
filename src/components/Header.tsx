@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: "Inicio", href: "/#inicio" },
   { label: "Catálogo", href: "/#catalogo" },
   { label: "Cómo pedir", href: "/#como-pedir" },
+  { label: "Talles", href: "/#tabla-de-talles" },
   { label: "Contacto", href: "/#contacto" },
 ];
 
