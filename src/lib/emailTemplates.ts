@@ -42,6 +42,9 @@ export function renderOrderEmailHtml(params: {
           </table>
           ${closingHtml}
           <p style="margin:24px 0 0;font-size:13px;color:#a1a1aa;">Nails Palette.</p>
+          <p style="margin:16px 0 0;padding-top:16px;border-top:1px solid #f4f4f5;font-size:12px;font-style:italic;color:#c1c1c6;">
+            Este es un mensaje automático, por favor no respondas a este correo.
+          </p>
         </td>
       </tr>
     </table>
