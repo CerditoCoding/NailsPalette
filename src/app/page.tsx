@@ -5,6 +5,7 @@ import { Showcase } from "@/components/Showcase";
 import { InfoStrip } from "@/components/InfoStrip";
 import { Catalog } from "@/components/Catalog";
 import { HowToOrder } from "@/components/HowToOrder";
+import { SizeChartSection } from "@/components/SizeChartSection";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -61,6 +62,7 @@ export default async function Home() {
           sizes={allSizeNames}
         />
         <HowToOrder />
+        <SizeChartSection />
         <Contact />
       </main>
       <Footer />
