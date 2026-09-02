@@ -32,6 +32,7 @@ export function AdminOrdersView({ initialOrders }: { initialOrders: Order[] }) {
   };
 
   const selectAllStatuses = () => setSelected(new Set(ORDER_STATUSES));
+  const clearAllStatuses = () => setSelected(new Set());
 
   const filtered = useMemo(
     () => orders.filter((order) => selected.has(order.status)),
@@ -65,13 +66,22 @@ export function AdminOrdersView({ initialOrders }: { initialOrders: Order[] }) {
             </li>
           ))}
         </ul>
-        <button
-          type="button"
-          onClick={selectAllStatuses}
-          className="mt-3 text-xs font-semibold uppercase tracking-wide text-pink-500 hover:text-pink-600"
-        >
-          Marcar todos
-        </button>
+        <div className="mt-3 flex gap-3">
+          <button
+            type="button"
+            onClick={selectAllStatuses}
+            className="text-xs font-semibold uppercase tracking-wide text-pink-500 hover:text-pink-600"
+          >
+            Marcar todos
+          </button>
+          <button
+            type="button"
+            onClick={clearAllStatuses}
+            className="text-xs font-semibold uppercase tracking-wide text-zinc-400 hover:text-zinc-600"
+          >
+            Desmarcar todos
+          </button>
+        </div>
       </aside>
 
       <div className="flex-1 space-y-4">
