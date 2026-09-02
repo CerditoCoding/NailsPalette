@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { STATUS_LABELS, isOrderStatus } from "@/lib/orderStatus";
+import {
+  STATUS_EMAIL_COLORS,
+  STATUS_LABELS,
+  formatOrderNumber,
+  isOrderStatus,
+} from "@/lib/orderStatus";
 import { sendOrderEmail, getSiteUrl } from "@/lib/email";
 import { releaseOrderNumber } from "@/lib/orderNumber";
 
@@ -37,16 +42,19 @@ export async function PATCH(
   // nunca tira, atrapa sus propios errores) para que no quede a mitad de
   // camino si la función serverless se congela apenas responde.
   if (before.status !== status) {
+    const colors = STATUS_EMAIL_COLORS[status];
     await sendOrderEmail({
       to: item.email,
-      subject: "Actualización de tu pedido — Nails Palette",
+      subject: `Actualización de tu pedido #${formatOrderNumber(item.orderNumber)} — Nails Palette`,
       heading: "Novedades sobre tu pedido",
+      orderNumber: item.orderNumber,
       bodyLines: [
-        `¡Hola! El estado de tu pedido es ${STATUS_LABELS[status]}.`,
+        "¡Hola! El estado de tu pedido es {{status}}.",
         'Recordá que podés ingresar a través de la página del "pedido" para ver el detalle y el estado.',
       ],
       ctaLabel: "Ver mi pedido",
       ctaUrl: `${getSiteUrl()}/pedido/${item.id}`,
+      statusBadge: { label: STATUS_LABELS[status], bg: colors.bg, color: colors.text },
     });
   }
 

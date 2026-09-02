@@ -31,6 +31,18 @@ export const STATUS_BADGE_STYLES: Record<OrderStatus, string> = {
   CERRADO: "bg-zinc-200 text-zinc-500",
 };
 
+/** Mismos colores que STATUS_BADGE_STYLES pero en hex, para el badge de
+ * estado de los mails — los clientes de correo no soportan clases de
+ * Tailwind, solo estilos inline. */
+export const STATUS_EMAIL_COLORS: Record<OrderStatus, { bg: string; text: string }> = {
+  NUEVO: { bg: "#fce7f3", text: "#db2777" },
+  EN_PROCESO: { bg: "#fef3c7", text: "#b45309" },
+  A_DESPACHAR: { bg: "#dbeafe", text: "#1d4ed8" },
+  ENVIADO: { bg: "#e0e7ff", text: "#4338ca" },
+  RECIBIDO: { bg: "#dcfce7", text: "#15803d" },
+  CERRADO: { bg: "#e4e4e7", text: "#71717a" },
+};
+
 /** Controla el "look" de toda la tarjeta del pedido, tanto en el admin como
  * en la página pública del pedido, para que ambas nunca queden desalineadas. */
 export const STATUS_CARD_STYLES: Record<OrderStatus, string> = {

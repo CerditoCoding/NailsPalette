@@ -27,10 +27,12 @@ export async function sendOrderEmail(params: {
   to: string;
   subject: string;
   heading: string;
+  orderNumber?: number;
   bodyLines: string[];
   ctaLabel: string;
   ctaUrl: string;
   closingLine?: string;
+  statusBadge?: { label: string; bg: string; color: string };
 }): Promise<void> {
   const config = getEmailConfig();
   if (!config) return;

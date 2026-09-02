@@ -1,3 +1,5 @@
+import { formatOrderNumber } from "@/lib/orderStatus";
+
 /**
  * Shell de mail transaccional con estilos inline (nada de clases de
  * Tailwind ni degradés CSS: los clientes de mail no los soportan de forma
@@ -6,19 +8,36 @@
  */
 export function renderOrderEmailHtml(params: {
   heading: string;
+  /** Si se pasa, se muestra "Pedido #00007" debajo del título. */
+  orderNumber?: number;
   bodyLines: string[];
   ctaLabel: string;
   ctaUrl: string;
   /** Línea opcional que aparece después del botón, antes de la firma. */
   closingLine?: string;
+  /** Si alguna línea de bodyLines/closingLine trae el token "{{status}}",
+   * se reemplaza por este badge con el mismo color que su equivalente en
+   * el admin, para que el estado resalte del resto del texto. */
+  statusBadge?: { label: string; bg: string; color: string };
 }): string {
-  const { heading, bodyLines, ctaLabel, ctaUrl, closingLine } = params;
+  const { heading, orderNumber, bodyLines, ctaLabel, ctaUrl, closingLine, statusBadge } = params;
 
-  const paragraph = (line: string) =>
-    `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3f3f46;">${escapeHtml(line)}</p>`;
+  const badgeHtml = statusBadge
+    ? `<span style="display:inline-block;padding:2px 12px;border-radius:999px;background-color:${statusBadge.bg};color:${statusBadge.color};font-weight:bold;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;">${escapeHtml(statusBadge.label)}</span>`
+    : "";
+
+  const paragraph = (line: string) => {
+    const escaped = escapeHtml(line);
+    const withBadge = statusBadge ? escaped.split("{{status}}").join(badgeHtml) : escaped;
+    return `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3f3f46;">${withBadge}</p>`;
+  };
 
   const bodyHtml = bodyLines.map(paragraph).join("");
   const closingHtml = closingLine ? paragraph(closingLine) : "";
+  const orderNumberHtml =
+    orderNumber != null
+      ? `<p style="margin:0 0 16px;font-size:13px;font-weight:bold;color:#ec4899;text-transform:uppercase;letter-spacing:0.4px;">Pedido #${formatOrderNumber(orderNumber)}</p>`
+      : "";
 
   return `<!doctype html>
 <html lang="es">
@@ -32,6 +51,7 @@ export function renderOrderEmailHtml(params: {
       <tr>
         <td style="padding:32px 28px;">
           <h1 style="margin:0 0 16px;font-size:20px;color:#18181b;">${escapeHtml(heading)}</h1>
+          ${orderNumberHtml}
           ${bodyHtml}
           <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
             <tr>

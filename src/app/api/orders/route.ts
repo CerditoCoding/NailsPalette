@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { validateOrderPayload } from "@/lib/orderPayload";
 import { allocateOrderNumber, isOrderNumberCollision } from "@/lib/orderNumber";
 import { sendOrderEmail, getSiteUrl } from "@/lib/email";
+import { formatOrderNumber } from "@/lib/orderStatus";
 
 const MAX_ATTEMPTS = 2;
 
@@ -68,8 +69,9 @@ export async function POST(request: Request) {
   // camino sin que el mail llegue a salir.
   await sendOrderEmail({
     to: order.email,
-    subject: "Tu pedido en Nails Palette",
+    subject: `Tu pedido #${formatOrderNumber(order.orderNumber)} en Nails Palette`,
     heading: "¡Gracias por elegir Nails Palette!",
+    orderNumber: order.orderNumber,
     bodyLines: [
       "En el siguiente link, vas a poder acceder a tu pedido para ver el detalle y el estado del mismo:",
     ],
