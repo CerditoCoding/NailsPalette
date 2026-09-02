@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
@@ -17,9 +18,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-pink-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/#inicio" className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-pink-300 to-fuchsia-400 text-lg font-bold text-white shadow-sm">
-            NP
-          </span>
+          <Image src="/icon.png" alt="Nails Palette" width={44} height={44} className="h-11 w-11" priority />
           <span className="hidden text-lg font-semibold tracking-tight text-zinc-900 sm:block">
             Nails Palette
           </span>
