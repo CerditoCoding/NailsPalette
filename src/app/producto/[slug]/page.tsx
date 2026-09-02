@@ -1,6 +1,9 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { SITE_URL } from "@/lib/site";
 import { Header } from "@/components/Header";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Footer } from "@/components/Footer";
@@ -8,6 +11,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { FloatingActions } from "@/components/FloatingActions";
 import { ProductGallery } from "@/components/ProductGallery";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
+import { ProductJsonLd } from "@/components/JsonLd";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -17,14 +21,13 @@ const currencyFormatter = new Intl.NumberFormat("es-AR", {
 
 export const dynamic = "force-dynamic";
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+type ProductPageParams = { slug: string };
 
-  const product = await prisma.product.findFirst({
+// `cache()` dedupe la consulta dentro de un mismo request: generateMetadata
+// y el componente de la página piden el mismo producto, así se pide una sola
+// vez a la base en vez de dos.
+const getProductBySlug = cache(async (slug: string) => {
+  return prisma.product.findFirst({
     where: { slug, active: true },
     include: {
       collection: true,
@@ -34,6 +37,57 @@ export default async function ProductDetailPage({
       images: { orderBy: { position: "asc" } },
     },
   });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<ProductPageParams>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+
+  if (!product) {
+    return { title: "Producto no encontrado" };
+  }
+
+  const description = truncateAtWord(product.description, 155);
+  const url = `${SITE_URL}/producto/${product.slug}`;
+
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: product.name,
+      description,
+      url,
+      images: [product.coverImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: [product.coverImage],
+    },
+  };
+}
+
+function truncateAtWord(text: string, maxLength: number): string {
+  const singleLine = text.replace(/\s+/g, " ").trim();
+  if (singleLine.length <= maxLength) return singleLine;
+  const cut = singleLine.slice(0, maxLength);
+  return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+}
+
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<ProductPageParams>;
+}) {
+  const { slug } = await params;
+
+  const product = await getProductBySlug(slug);
 
   if (!product) notFound();
 
@@ -42,6 +96,13 @@ export default async function ProductDetailPage({
 
   return (
     <div className="flex min-h-full flex-col bg-white">
+      <ProductJsonLd
+        name={product.name}
+        description={product.description}
+        image={product.coverImage}
+        price={finalPrice}
+        url={`${SITE_URL}/producto/${product.slug}`}
+      />
       <AnnouncementBar />
       <Header />
       <main className="flex-1">

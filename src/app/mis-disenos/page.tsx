@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
@@ -8,6 +9,12 @@ import { FloatingActions } from "@/components/FloatingActions";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Mis Diseños",
+  description:
+    "Mirá una selección de diseños de uñas press on hechos a mano por Nails Palette. Elegí tu favorito y coordinalo por WhatsApp o Instagram.",
+};
 
 export default async function MisDisenosPage() {
   const photos = await prisma.designPhoto.findMany({ orderBy: { position: "asc" } });

@@ -7,6 +7,7 @@
  */
 import { Resend } from "resend";
 import { renderOrderEmailHtml } from "@/lib/emailTemplates";
+import { SITE_URL } from "@/lib/site";
 
 type EmailConfig = { client: Resend; from: string };
 
@@ -18,7 +19,7 @@ function getEmailConfig(): EmailConfig | null {
 }
 
 export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://nails-palette.vercel.app";
+  return SITE_URL;
 }
 
 /** Mail de la dueña para avisarle de pedidos nuevos, mientras no tengamos
