@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ function LoginForm() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok) {
@@ -52,6 +53,21 @@ function LoginForm() {
           <p className="text-sm text-zinc-500">Nails Palette</p>
         </div>
 
+        <label htmlFor="username" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          Usuario
+        </label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          required
+          autoFocus
+          autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="mb-4 w-full rounded-lg border border-pink-200 px-3 py-2 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
+        />
+
         <label htmlFor="password" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Contraseña
         </label>
@@ -60,7 +76,7 @@ function LoginForm() {
           name="password"
           type="password"
           required
-          autoFocus
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="mb-4 w-full rounded-lg border border-pink-200 px-3 py-2 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none"
