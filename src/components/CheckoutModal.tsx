@@ -96,10 +96,15 @@ export function CheckoutModal({
         <form onSubmit={handleSubmit} className="space-y-3">
           {FIELDS.map((field) => (
             <div key={field.name}>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <label
+                htmlFor={field.name}
+                className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500"
+              >
                 {field.label}
               </label>
               <input
+                id={field.name}
+                name={field.name}
                 type={field.type}
                 required
                 value={data[field.name]}
@@ -110,10 +115,15 @@ export function CheckoutModal({
           ))}
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <label
+              htmlFor="notes"
+              className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500"
+            >
               Notas opcionales
             </label>
             <textarea
+              id="notes"
+              name="notes"
               value={data.notes}
               onChange={(e) => handleChange("notes", e.target.value)}
               maxLength={500}

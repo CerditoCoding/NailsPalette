@@ -27,7 +27,7 @@ export function AddToCartPanel({
     <div className="space-y-4">
       <div>
         <div className="mb-1 flex items-center justify-between">
-          <label className="block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <label htmlFor="size" className="block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Talle
           </label>
           <button
@@ -42,6 +42,8 @@ export function AddToCartPanel({
           <p className="text-sm text-zinc-400">Sin talles disponibles.</p>
         ) : (
           <select
+            id="size"
+            name="size"
             value={size}
             onChange={(e) => setSize(e.target.value)}
             className="w-full rounded-lg border border-pink-200 px-3 py-2 text-sm text-zinc-900 focus:border-pink-400 focus:outline-none sm:w-48"

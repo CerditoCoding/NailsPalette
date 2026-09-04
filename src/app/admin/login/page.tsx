@@ -52,10 +52,12 @@ function LoginForm() {
           <p className="text-sm text-zinc-500">Nails Palette</p>
         </div>
 
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <label htmlFor="password" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Contraseña
         </label>
         <input
+          id="password"
+          name="password"
           type="password"
           required
           autoFocus

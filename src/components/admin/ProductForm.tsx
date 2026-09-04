@@ -168,10 +168,12 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <label htmlFor="name" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Título
         </label>
         <input
+          id="name"
+          name="name"
           type="text"
           required
           value={name}
@@ -181,10 +183,12 @@ export function ProductForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <label htmlFor="description" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Descripción
         </label>
         <textarea
+          id="description"
+          name="description"
           required
           rows={4}
           value={description}
@@ -195,10 +199,12 @@ export function ProductForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <label htmlFor="price" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Precio ($)
           </label>
           <input
+            id="price"
+            name="price"
             type="number"
             min={1}
             required
@@ -208,10 +214,12 @@ export function ProductForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <label htmlFor="collectionId" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Colección
           </label>
           <select
+            id="collectionId"
+            name="collectionId"
             required
             value={collectionId}
             onChange={(e) => setCollectionId(e.target.value)}
@@ -226,10 +234,12 @@ export function ProductForm({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <label htmlFor="shapeId" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Forma
           </label>
           <select
+            id="shapeId"
+            name="shapeId"
             required
             value={shapeId}
             onChange={(e) => setShapeId(e.target.value)}
@@ -244,10 +254,12 @@ export function ProductForm({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <label htmlFor="designLevelId" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Nivel de diseño
           </label>
           <select
+            id="designLevelId"
+            name="designLevelId"
             required
             value={designLevelId}
             onChange={(e) => setDesignLevelId(e.target.value)}
